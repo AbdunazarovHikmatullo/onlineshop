@@ -30,17 +30,27 @@
         Оригинальные и аналоговые детали для любых марок и моделей.
         Быстрая доставка, гарантия качества, поддержка 24/7.
       </p>
+      <div class="hero__chips">
+        <span class="hero__chip">Подбор по VIN</span>
+        <span class="hero__chip">Только проверенные бренды</span>
+        <span class="hero__chip">Работаем с сервисами и частными клиентами</span>
+      </div>
       <div class="hero__actions">
-        <a href="{% url 'product:catalog' %}" class="btn btn-accent" style="padding:11px 24px;font-size:.95rem;">
+        <a href="{% url 'product:catalog' %}" class="btn btn-accent">
           Перейти в каталог
         </a>
-        <a href="#" class="btn btn-outline" style="padding:11px 24px;font-size:.95rem;">
-          О нас
+        <a href="{% url 'cart:cart' %}" class="btn btn-outline">
+          Оформить заказ
         </a>
       </div>
     </div>
 
     <div class="hero__visual">
+      <div class="hero__spotlight">
+        <div class="hero__spotlight-badge">Экспресс-подбор</div>
+        <div class="hero__spotlight-title">Соберём комплект деталей под ваш автомобиль за 15 минут</div>
+        <p class="hero__spotlight-text">Менеджер сверит совместимость, остатки и предложит замену, если нужной позиции нет в наличии.</p>
+      </div>
       <div class="hero__stat">
         <div class="hero__stat-num">50 000<span class="accent">+</span></div>
         <div class="hero__stat-label">артикулов в наличии</div>
@@ -55,6 +65,23 @@
       </div>
     </div>
 
+  </div>
+</section>
+
+<section class="trust-band">
+  <div class="container trust-band__inner">
+    <div class="trust-band__item">
+      <strong>98%</strong>
+      <span>заказов отгружаются в день подтверждения</span>
+    </div>
+    <div class="trust-band__item">
+      <strong>250+</strong>
+      <span>поставщиков оригинальных и контрактных деталей</span>
+    </div>
+    <div class="trust-band__item">
+      <strong>24/7</strong>
+      <span>помогаем с подбором, заменами и срочными заявками</span>
+    </div>
   </div>
 </section>
 
@@ -116,7 +143,10 @@
   <div class="container">
 
     <div class="section-header">
-      <h2 class="section-title">Последние поступления</h2>
+      <div>
+        <div class="section-kicker">Каталог</div>
+        <h2 class="section-title">Последние поступления</h2>
+      </div>
       <a href="{% url 'product:catalog' %}" class="section-link">
         Смотреть все
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">

@@ -57,6 +57,10 @@ def submit_order(request):
         messages.error(request, 'Укажите номер телефона')
         return redirect('cart:cart')
 
+    if request.POST.get('save_phone') and phone and not request.user.phone:
+        request.user.phone = phone
+        request.user.save(update_fields=['phone'])
+
     order = Order.objects.create(
         user=request.user,
         phone=phone,

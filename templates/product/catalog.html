@@ -11,9 +11,8 @@
 {% block content %}
 <div class="catalog-page container">
 
-  <!-- Breadcrumb -->
   <nav class="catalog-breadcrumb" aria-label="Хлебные крошки">
-    <a href="{% url 'product:catalog' %}">Главная</a>
+    <a href="{% url 'product:index' %}">Главная</a>
     <span class="catalog-breadcrumb__sep">›</span>
     <span>Каталог</span>
     {% if selected_category %}
@@ -22,7 +21,6 @@
     {% endif %}
   </nav>
 
-  <!-- Mobile filter button (hidden on desktop) -->
   <div class="mobile-filter-bar">
     <button class="mobile-filter-btn" type="button" onclick="openMobileFilter()">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
@@ -35,9 +33,7 @@
 
   <div class="catalog-layout">
 
-    <!-- ── SIDEBAR ───────────────────────────────────── -->
     <aside class="sidebar">
-      <!-- Close button (mobile only) -->
       <div class="sidebar__mobile-header">
         <span class="sidebar__mobile-title">Фильтры</span>
         <button type="button" class="sidebar__close-btn" onclick="closeMobileFilter()">
@@ -48,8 +44,11 @@
       </div>
 
       <form method="get" action="{% url 'product:catalog' %}">
+        <div class="sidebar__intro">
+          <div class="sidebar__intro-title">Умный подбор</div>
+          <p class="sidebar__intro-text">Сузьте список по категории, бренду и бюджету. На мобильном фильтры открываются в отдельной панели.</p>
+        </div>
 
-        <!-- Categories -->
         <div class="sidebar__section">
           <div class="sidebar__title">Категории</div>
           <ul class="sidebar__categories">
@@ -82,12 +81,10 @@
           </ul>
         </div>
 
-        <!-- Keep category on filter apply -->
         {% if selected_category %}
           <input type="hidden" name="category" value="{{ selected_category.slug }}">
         {% endif %}
 
-        <!-- Brands -->
         {% if brands %}
           <div class="sidebar__section">
             <div class="sidebar__title">Бренд</div>
@@ -103,7 +100,6 @@
           </div>
         {% endif %}
 
-        <!-- Price -->
         <div class="sidebar__section">
           <div class="sidebar__title">Цена, ₽</div>
           <div class="sidebar__price-row">
@@ -120,9 +116,7 @@
 
       </form>
     </aside>
-    <!-- ── /SIDEBAR ──────────────────────────────────── -->
 
-    <!-- ── PRODUCT AREA ──────────────────────────────── -->
     <section class="product-area">
 
       <div class="product-topbar">
@@ -177,6 +171,14 @@
               {% endif %}
               <a href="{% url 'product:detail' product.slug %}" class="product-card__name">{{ product.name }}</a>
               <div class="product-card__sku">Арт. {{ product.sku }}</div>
+              <div class="product-card__meta">
+                <span class="product-card__meta-pill">{{ product.category.name }}</span>
+                {% if product.stock > 0 %}
+                  <span class="product-card__meta-pill product-card__meta-pill--ok">В наличии</span>
+                {% else %}
+                  <span class="product-card__meta-pill">Под заказ</span>
+                {% endif %}
+              </div>
               <div class="product-card__footer">
                 <span class="product-card__price">{{ product.price|floatformat:0 }} ₽</span>
                 <button class="product-card__cart" type="button"
@@ -223,7 +225,6 @@
       {% endif %}
 
     </section>
-    <!-- ── /PRODUCT AREA ─────────────────────────────── -->
 
   </div>
 </div>

@@ -10,8 +10,6 @@
 
 {% block content %}
 <div class="detail-page container">
-
-  <!-- ── Breadcrumb ───────────────────────────────────── -->
   <nav class="detail-breadcrumb" aria-label="Хлебные крошки">
     <a href="{% url 'product:index' %}">Главная</a>
     <span class="detail-breadcrumb__sep">›</span>
@@ -22,10 +20,21 @@
     <span>{{ product.name }}</span>
   </nav>
 
-  <!-- ── Main layout ─────────────────────────────────── -->
+  <section class="detail-hero">
+    <div>
+      <div class="detail-hero__kicker">Карточка товара</div>
+      <h1 class="detail-hero__title">{{ product.name }}</h1>
+      <p class="detail-hero__text">Подробная карточка с фото, остатком, характеристиками и быстрым добавлением в корзину.</p>
+    </div>
+    <div class="detail-hero__meta">
+      <span class="detail-hero__pill">{{ product.category.name }}</span>
+      {% if product.brand %}<span class="detail-hero__pill">{{ product.brand }}</span>{% endif %}
+      <span class="detail-hero__pill">Арт. {{ product.sku }}</span>
+    </div>
+  </section>
+
   <div class="detail-layout">
 
-    <!-- Gallery -->
     <div class="gallery">
       <div class="gallery__main">
         {% with product.images.first as main %}
@@ -55,7 +64,6 @@
       {% endif %}
     </div>
 
-    <!-- Info panel -->
     <div class="detail-info">
 
       <div class="detail-meta">
@@ -65,7 +73,7 @@
         <span class="detail-category">{{ product.category.name }}</span>
       </div>
 
-      <h1 class="detail-name">{{ product.name }}</h1>
+      <div class="detail-name">{{ product.name }}</div>
       <div class="detail-sku">Артикул: <strong>{{ product.sku }}</strong></div>
 
       {% if product.stock > 0 %}
@@ -85,7 +93,21 @@
         <span class="detail-price-note">за штуку</span>
       </div>
 
-      <!-- Quantity + Add to cart -->
+      <div class="detail-highlights">
+        <div class="detail-highlight">
+          <strong>Доставка</strong>
+          <span>От 1 дня по России</span>
+        </div>
+        <div class="detail-highlight">
+          <strong>Совместимость</strong>
+          <span>Проверим по VIN и OEM</span>
+        </div>
+        <div class="detail-highlight">
+          <strong>Гарантия</strong>
+          <span>14 дней на возврат</span>
+        </div>
+      </div>
+
       <div class="detail-action-row">
         <div class="qty-control">
           <button class="qty-btn" type="button" onclick="changeQty(-1)">−</button>
@@ -136,7 +158,6 @@
     </div>
   </div>
 
-  <!-- ── Tabs: Description + Attributes ─────────────── -->
   {% if product.description or product.attributes.all %}
     <div class="detail-tabs">
       <div class="detail-tabs__nav">
@@ -170,7 +191,6 @@
     </div>
   {% endif %}
 
-  <!-- ── Related products ────────────────────────────── -->
   {% if related %}
     <section>
       <h2 class="related__title">Похожие товары</h2>
@@ -196,6 +216,9 @@
               {% if p.brand %}<div class="product-card__brand">{{ p.brand }}</div>{% endif %}
               <a href="{% url 'product:detail' p.slug %}" class="product-card__name">{{ p.name }}</a>
               <div class="product-card__sku">Арт. {{ p.sku }}</div>
+              <div class="product-card__meta">
+                <span class="product-card__meta-pill">{{ p.category.name }}</span>
+              </div>
               <div class="product-card__footer">
                 <span class="product-card__price">{{ p.price|floatformat:0 }} ₽</span>
                 <button class="product-card__cart" type="button"

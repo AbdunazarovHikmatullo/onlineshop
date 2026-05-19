@@ -9,10 +9,12 @@
 
 {% block content %}
 <div class="dashboard">
-
-  <!-- ── Sidebar ──────────────────────────────────────── -->
   <aside class="dash-sidebar">
-    <div class="dash-sidebar__title">Управление</div>
+    <div class="dash-sidebar__top">
+      <div class="dash-sidebar__eyebrow">VMARKET Admin</div>
+      <div class="dash-sidebar__title">Управление магазином</div>
+      <p class="dash-sidebar__text">Товары, заказы и категории в одном рабочем интерфейсе.</p>
+    </div>
     <nav class="dash-sidebar__nav">
       <a href="{% url 'product:dashboard' %}" class="dash-sidebar__link active">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -48,15 +50,22 @@
     </nav>
   </aside>
 
-  <!-- ── Main ────────────────────────────────────────── -->
   <main class="dash-main">
+    <section class="dash-hero">
+      <div class="dash-header">
+        <div class="dash-header__kicker">Панель управления</div>
+        <h1 class="dash-header__title">Контроль магазина</h1>
+        <p class="dash-header__sub">Следите за остатками, заказами и структурой каталога без лишнего шума.</p>
+      </div>
+      <div class="dash-hero__actions">
+        <a href="{% url 'product:product_add' %}" class="dash-btn dash-btn-accent">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Добавить товар
+        </a>
+        <a href="{% url 'product:catalog' %}" class="dash-btn dash-btn-outline">Открыть каталог</a>
+      </div>
+    </section>
 
-    <div class="dash-header">
-      <h1 class="dash-header__title">Dashboard</h1>
-      <p class="dash-header__sub">Управление магазином VMARKET</p>
-    </div>
-
-    <!-- Stat cards -->
     <div class="dash-stats">
       <div class="stat-card">
         <div class="stat-card__label">Всего товаров</div>
@@ -79,16 +88,33 @@
       </div>
     </div>
 
-    <!-- Quick actions -->
-    <div style="display:flex;gap:10px;margin-bottom:24px;">
-      <a href="{% url 'product:product_add' %}" class="dash-btn dash-btn-accent">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-        Добавить товар
-      </a>
-      <a href="{% url 'product:catalog' %}" class="dash-btn dash-btn-outline">Каталог товаров</a>
-    </div>
+    <section class="dash-meta-grid">
+      <div class="dash-panel dash-panel--soft">
+        <div class="dash-panel__head">
+          <span class="dash-panel__title">Статусы заказов</span>
+          <span class="dash-panel__note">живой срез</span>
+        </div>
+        <div class="status-bar">
+          <div class="status-bar__item"><span class="status-bar__dot status-pending"></span>Ожидают: <strong>{{ orders_by_status.pending|default:0 }}</strong></div>
+          <div class="status-bar__item"><span class="status-bar__dot status-confirmed"></span>Подтверждены: <strong>{{ orders_by_status.confirmed|default:0 }}</strong></div>
+          <div class="status-bar__item"><span class="status-bar__dot status-in_progress"></span>В работе: <strong>{{ orders_by_status.in_progress|default:0 }}</strong></div>
+          <div class="status-bar__item"><span class="status-bar__dot status-ready"></span>Готовы: <strong>{{ orders_by_status.ready|default:0 }}</strong></div>
+          <div class="status-bar__item"><span class="status-bar__dot status-completed"></span>Завершены: <strong>{{ orders_by_status.completed|default:0 }}</strong></div>
+          <div class="status-bar__item"><span class="status-bar__dot status-cancelled"></span>Отменены: <strong>{{ orders_by_status.cancelled|default:0 }}</strong></div>
+        </div>
+      </div>
+      <div class="dash-panel">
+        <div class="dash-panel__head">
+          <span class="dash-panel__title">Быстрые переходы</span>
+        </div>
+        <div class="dash-shortcuts">
+          <a href="{% url 'admin:index' %}" class="dash-shortcut" target="_blank">Django Admin</a>
+          <a href="{% url 'product:product_add' %}" class="dash-shortcut">Новый товар</a>
+          <a href="#categories" class="dash-shortcut">Категории</a>
+        </div>
+      </div>
+    </section>
 
-    <!-- Orders table -->
     <div class="dash-section">
       <div class="dash-section__head">
         <span class="dash-section__title">Последние заказы</span>
@@ -96,57 +122,56 @@
       </div>
 
       {% if recent_orders %}
-        <table class="dash-table">
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Пользователь</th>
-              <th>Позиций</th>
-              <th>Сумма</th>
-              <th>Статус</th>
-              <th>Дата</th>
-              <th>Действие</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for order in recent_orders %}
+        <div class="dash-table-wrap">
+          <table class="dash-table">
+            <thead>
               <tr>
-                <td><strong>#{{ order.pk }}</strong></td>
-                <td>{{ order.user.get_full_name|default:order.user.username }}</td>
-                <td>{{ order.items.count }}</td>
-                <td>{{ order.total_price|floatformat:0 }} ₽</td>
-                <td>
-                  <span class="status-badge status-{{ order.status }}">
-                    {{ order.get_status_display }}
-                  </span>
-                </td>
-                <td style="color:var(--muted);font-size:.8rem;">
-                  {{ order.created_at|date:"d.m.Y H:i" }}
-                </td>
-                <td>
-                  <form method="post" style="display:inline-flex;gap:6px;align-items:center;">
-                    {% csrf_token %}
-                    <input type="hidden" name="order_id" value="{{ order.pk }}">
-                    <select name="status" class="status-select">
-                      {% for val, label in status_choices %}
-                        <option value="{{ val }}" {% if val == order.status %}selected{% endif %}>{{ label }}</option>
-                      {% endfor %}
-                    </select>
-                    <button type="submit" class="dash-btn dash-btn-outline" style="padding:4px 10px;font-size:.75rem;">OK</button>
-                  </form>
-                </td>
+                <th>#</th>
+                <th>Пользователь</th>
+                <th>Позиций</th>
+                <th>Сумма</th>
+                <th>Статус</th>
+                <th>Дата</th>
+                <th>Действие</th>
               </tr>
-            {% endfor %}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {% for order in recent_orders %}
+                <tr>
+                  <td><strong>#{{ order.pk }}</strong></td>
+                  <td>{{ order.user.get_full_name|default:order.user.username }}</td>
+                  <td>{{ order.items.count }}</td>
+                  <td>{{ order.total_price|floatformat:0 }} ₽</td>
+                  <td>
+                    <span class="status-badge status-{{ order.status }}">
+                      {{ order.get_status_display }}
+                    </span>
+                  </td>
+                  <td class="dash-table__muted">{{ order.created_at|date:"d.m.Y H:i" }}</td>
+                  <td>
+                    <form method="post" class="dash-inline-form">
+                      {% csrf_token %}
+                      <input type="hidden" name="order_id" value="{{ order.pk }}">
+                      <select name="status" class="status-select">
+                        {% for val, label in status_choices %}
+                          <option value="{{ val }}" {% if val == order.status %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                      </select>
+                      <button type="submit" class="dash-btn dash-btn-outline dash-btn-sm">OK</button>
+                    </form>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
       {% else %}
-        <div style="padding:48px;text-align:center;color:var(--muted);">
+        <div class="dash-empty">
           <p>Заказов пока нет.</p>
         </div>
       {% endif %}
     </div>
 
-    <!-- Categories section -->
     <div class="dash-section" id="categories">
       <div class="dash-section__head">
         <span class="dash-section__title">Категории</span>
@@ -156,7 +181,6 @@
         </button>
       </div>
 
-      <!-- Add category form (hidden by default, shown on toggle) -->
       <div class="cat-add-panel" id="catAddPanel" {% if not cat_form.errors %}style="display:none"{% endif %}>
         <form method="post" class="cat-form" novalidate>
           {% csrf_token %}
@@ -196,97 +220,90 @@
       </div>
 
       {% if all_categories %}
-        <table class="dash-table">
-          <thead>
-            <tr>
-              <th>Категория</th>
-              <th>Slug</th>
-              <th>Родительская</th>
-              <th>Товаров</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for cat in all_categories %}
-              <!-- Display row -->
-              <tr id="cat-row-{{ cat.pk }}">
-                <td>
-                  <div class="cat-name">
-                    {% if cat.parent %}<span class="cat-indent">↳</span>{% endif %}
-                    <strong>{{ cat.name }}</strong>
-                  </div>
-                </td>
-                <td><span class="cat-slug">{{ cat.slug }}</span></td>
-                <td style="color:var(--muted);">{{ cat.parent.name|default:"—" }}</td>
-                <td style="color:var(--muted);">{{ cat.product_set.count }}</td>
-                <td>
-                  <div class="cat-row-actions">
-                    <button type="button" class="cat-action-btn cat-edit-btn"
-                            title="Редактировать"
-                            onclick="openCatEdit({{ cat.pk }})">
-                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                      </svg>
-                    </button>
-                    <form method="post" style="display:inline" onsubmit="return confirm('Удалить «{{ cat.name }}»?')">
-                      {% csrf_token %}
-                      <input type="hidden" name="action" value="delete_category">
-                      <input type="hidden" name="cat_id" value="{{ cat.pk }}">
-                      <button type="submit" class="cat-action-btn cat-delete-btn" title="Удалить">
+        <div class="dash-table-wrap">
+          <table class="dash-table">
+            <thead>
+              <tr>
+                <th>Категория</th>
+                <th>Slug</th>
+                <th>Родительская</th>
+                <th>Товаров</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for cat in all_categories %}
+                <tr id="cat-row-{{ cat.pk }}">
+                  <td>
+                    <div class="cat-name">
+                      {% if cat.parent %}<span class="cat-indent">↳</span>{% endif %}
+                      <strong>{{ cat.name }}</strong>
+                    </div>
+                  </td>
+                  <td><span class="cat-slug">{{ cat.slug }}</span></td>
+                  <td class="dash-table__muted">{{ cat.parent.name|default:"—" }}</td>
+                  <td class="dash-table__muted">{{ cat.product_set.count }}</td>
+                  <td>
+                    <div class="cat-row-actions">
+                      <button type="button" class="cat-action-btn cat-edit-btn" title="Редактировать" onclick="openCatEdit({{ cat.pk }})">
                         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                          <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/>
-                          <path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/>
+                          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
                         </svg>
                       </button>
-                    </form>
-                  </div>
-                </td>
-              </tr>
+                      <form method="post" onsubmit="return confirm('Удалить «{{ cat.name }}»?')">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="delete_category">
+                        <input type="hidden" name="cat_id" value="{{ cat.pk }}">
+                        <button type="submit" class="cat-action-btn cat-delete-btn" title="Удалить">
+                          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/>
+                            <path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/>
+                          </svg>
+                        </button>
+                      </form>
+                    </div>
+                  </td>
+                </tr>
 
-              <!-- Inline edit row (hidden) -->
-              <tr class="cat-edit-row" id="cat-edit-{{ cat.pk }}" style="display:none">
-                <td colspan="5">
-                  <form method="post" class="cat-inline-form">
-                    {% csrf_token %}
-                    <input type="hidden" name="action" value="edit_category">
-                    <input type="hidden" name="cat_id" value="{{ cat.pk }}">
-                    <div class="cat-inline-form__grid">
-                      <div class="cat-form__field">
-                        <label class="cat-form__label">Название <span class="cat-form__req">*</span></label>
-                        <input class="dash-input" type="text" name="name"
-                               value="{{ cat.name }}" required autocomplete="off">
+                <tr class="cat-edit-row" id="cat-edit-{{ cat.pk }}" style="display:none">
+                  <td colspan="5">
+                    <form method="post" class="cat-inline-form">
+                      {% csrf_token %}
+                      <input type="hidden" name="action" value="edit_category">
+                      <input type="hidden" name="cat_id" value="{{ cat.pk }}">
+                      <div class="cat-inline-form__grid">
+                        <div class="cat-form__field">
+                          <label class="cat-form__label">Название <span class="cat-form__req">*</span></label>
+                          <input class="dash-input" type="text" name="name" value="{{ cat.name }}" required autocomplete="off">
+                        </div>
+                        <div class="cat-form__field">
+                          <label class="cat-form__label">Slug</label>
+                          <input class="dash-input" type="text" name="slug" value="{{ cat.slug }}" required autocomplete="off">
+                        </div>
+                        <div class="cat-form__field">
+                          <label class="cat-form__label">Родительская</label>
+                          <select class="dash-input" name="parent">
+                            <option value="">Нет (корневая)</option>
+                            {% for c in all_categories %}
+                              {% if c.pk != cat.pk %}
+                                <option value="{{ c.pk }}" {% if cat.parent_id == c.pk %}selected{% endif %}>{{ c.name }}</option>
+                              {% endif %}
+                            {% endfor %}
+                          </select>
+                        </div>
                       </div>
-                      <div class="cat-form__field">
-                        <label class="cat-form__label">Slug</label>
-                        <input class="dash-input" type="text" name="slug"
-                               value="{{ cat.slug }}" required autocomplete="off">
+                      <div class="cat-form__actions cat-form__actions--inline">
+                        <button type="submit" class="dash-btn dash-btn-accent">Сохранить</button>
+                        <button type="button" class="dash-btn dash-btn-outline" onclick="closeCatEdit({{ cat.pk }})">Отмена</button>
                       </div>
-                      <div class="cat-form__field">
-                        <label class="cat-form__label">Родительская</label>
-                        <select class="dash-input" name="parent">
-                          <option value="">Нет (корневая)</option>
-                          {% for c in all_categories %}
-                            {% if c.pk != cat.pk %}
-                              <option value="{{ c.pk }}" {% if cat.parent_id == c.pk %}selected{% endif %}>
-                                {{ c.name }}
-                              </option>
-                            {% endif %}
-                          {% endfor %}
-                        </select>
-                      </div>
-                    </div>
-                    <div class="cat-form__actions" style="margin-top:12px;">
-                      <button type="submit" class="dash-btn dash-btn-accent">Сохранить</button>
-                      <button type="button" class="dash-btn dash-btn-outline"
-                              onclick="closeCatEdit({{ cat.pk }})">Отмена</button>
-                    </div>
-                  </form>
-                </td>
-              </tr>
-            {% endfor %}
-          </tbody>
-        </table>
+                    </form>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
       {% else %}
         <div class="cat-empty">
           <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
@@ -296,33 +313,31 @@
         </div>
       {% endif %}
     </div>
-
   </main>
 </div>
 
+{% endblock %}
+
 {% block extra_js %}
 <script>
-/* ── Add form toggle ─────────────────────────────────── */
 function toggleCatForm() {
   const panel = document.getElementById('catAddPanel');
-  const btn   = document.getElementById('catToggleBtn');
-  const open  = panel.style.display !== 'none';
+  const btn = document.getElementById('catToggleBtn');
+  const open = panel.style.display !== 'none';
   panel.style.display = open ? 'none' : 'block';
   btn.innerHTML = open
     ? '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Добавить категорию'
     : '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> Закрыть';
 }
 
-/* ── Inline edit ─────────────────────────────────────── */
 function openCatEdit(id) {
-  /* close all other edit rows first */
   document.querySelectorAll('.cat-edit-row').forEach(function(r) {
     r.style.display = 'none';
   });
   document.querySelectorAll('.cat-edit-btn').forEach(function(b) {
     b.classList.remove('active');
   });
-  const editRow   = document.getElementById('cat-edit-' + id);
+  const editRow = document.getElementById('cat-edit-' + id);
   const displayRow = document.getElementById('cat-row-' + id);
   if (!editRow) return;
   editRow.style.display = 'table-row';
@@ -337,19 +352,18 @@ function closeCatEdit(id) {
   if (btn) btn.classList.remove('active');
 }
 
-/* ── Transliteration ─────────────────────────────────── */
 const RU_EN = {
   'а':'a','б':'b','в':'v','г':'g','д':'d','е':'e','ё':'yo','ж':'zh',
   'з':'z','и':'i','й':'j','к':'k','л':'l','м':'m','н':'n','о':'o',
   'п':'p','р':'r','с':'s','т':'t','у':'u','ф':'f','х':'kh','ц':'ts',
   'ч':'ch','ш':'sh','щ':'sch','ъ':'','ы':'y','ь':'','э':'e','ю':'yu','я':'ya',
 };
+
 function toSlug(s) {
   return s.toLowerCase().split('').map(c => RU_EN[c] ?? c).join('')
     .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 }
 
-/* ── Slug auto-fill (add form only) ──────────────────── */
 (function () {
   const nameEl = document.querySelector('#catAddPanel input[name="name"]');
   const slugEl = document.querySelector('#catAddPanel input[name="slug"]');
@@ -361,5 +375,4 @@ function toSlug(s) {
   slugEl.addEventListener('input', function () { slugEl.dataset.edited = '1'; });
 })();
 </script>
-{% endblock %}
 {% endblock %}
