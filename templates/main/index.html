@@ -1,0 +1,211 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}VMARKET — Автозапчасти с доставкой по России{% endblock %}
+{% block nav_home %}active{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'product/css/catalog.css' %}">
+<link rel="stylesheet" href="{% static 'main/css/index.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<!-- ═══════════════════════════════════════════════════
+     HERO
+════════════════════════════════════════════════════ -->
+<section class="hero">
+  <div class="hero__inner container">
+
+    <div class="hero__content">
+      <div class="hero__eyebrow">
+        <span class="hero__eyebrow-dot"></span>
+        Магазин автозапчастей
+      </div>
+      <h1 class="hero__title">
+        Запчасти для<br>
+        <em>любого авто</em>
+      </h1>
+      <p class="hero__sub">
+        Оригинальные и аналоговые детали для любых марок и моделей.
+        Быстрая доставка, гарантия качества, поддержка 24/7.
+      </p>
+      <div class="hero__actions">
+        <a href="{% url 'product:catalog' %}" class="btn btn-accent" style="padding:11px 24px;font-size:.95rem;">
+          Перейти в каталог
+        </a>
+        <a href="#" class="btn btn-outline" style="padding:11px 24px;font-size:.95rem;">
+          О нас
+        </a>
+      </div>
+    </div>
+
+    <div class="hero__visual">
+      <div class="hero__stat">
+        <div class="hero__stat-num">50 000<span class="accent">+</span></div>
+        <div class="hero__stat-label">артикулов в наличии</div>
+      </div>
+      <div class="hero__stat">
+        <div class="hero__stat-num accent">15</div>
+        <div class="hero__stat-label">лет на рынке</div>
+      </div>
+      <div class="hero__stat">
+        <div class="hero__stat-num">1—3</div>
+        <div class="hero__stat-label">дня доставка по&nbsp;России</div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     FEATURES
+════════════════════════════════════════════════════ -->
+<section class="features">
+  <div class="container">
+    <div class="features__grid">
+
+      <div class="feature-card fade-up">
+        <div class="feature-card__icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+          </svg>
+        </div>
+        <div class="feature-card__title">Оригинал и аналог</div>
+        <p class="feature-card__desc">Работаем с ведущими поставщиками. Только сертифицированная продукция.</p>
+      </div>
+
+      <div class="feature-card fade-up" style="transition-delay:.07s">
+        <div class="feature-card__icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>
+          </svg>
+        </div>
+        <div class="feature-card__title">Быстрая доставка</div>
+        <p class="feature-card__desc">Отправляем в день заказа. Доставка от 1 дня по всей России.</p>
+      </div>
+
+      <div class="feature-card fade-up" style="transition-delay:.14s">
+        <div class="feature-card__icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+        </div>
+        <div class="feature-card__title">Гарантия качества</div>
+        <p class="feature-card__desc">Официальная гарантия на все позиции. Возврат в течение 14 дней.</p>
+      </div>
+
+      <div class="feature-card fade-up" style="transition-delay:.21s">
+        <div class="feature-card__icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+          </svg>
+        </div>
+        <div class="feature-card__title">Поддержка 24/7</div>
+        <p class="feature-card__desc">Эксперты помогут подобрать нужную деталь по VIN или описанию.</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     LATEST PRODUCTS
+════════════════════════════════════════════════════ -->
+<section class="latest">
+  <div class="container">
+
+    <div class="section-header">
+      <h2 class="section-title">Последние поступления</h2>
+      <a href="{% url 'product:catalog' %}" class="section-link">
+        Смотреть все
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+        </svg>
+      </a>
+    </div>
+
+    {% if latest_products %}
+      <div class="latest__grid">
+        {% for product in latest_products %}
+          <article class="product-card fade-up" data-href="{% url 'product:detail' product.slug %}">
+
+            <div class="product-card__img-wrap">
+              {% with product.images.first as img %}
+                {% if img %}
+                  <img class="product-card__img" src="{{ img.image.url }}" alt="{{ product.name }}" loading="lazy">
+                {% else %}
+                  <div class="product-card__no-img">
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+                      <rect x="3" y="3" width="18" height="18" rx="2"/>
+                      <circle cx="8.5" cy="8.5" r="1.5"/>
+                      <polyline points="21 15 16 10 5 21"/>
+                    </svg>
+                  </div>
+                {% endif %}
+              {% endwith %}
+              <button type="button"
+                      class="product-card__fav {% if product.id in fav_ids %}active{% endif %}"
+                      onclick="toggleFav(this, {{ product.id }})"
+                      aria-label="В избранное">
+                <svg width="14" height="14" viewBox="0 0 24 24"
+                     fill="{% if product.id in fav_ids %}currentColor{% else %}none{% endif %}"
+                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                </svg>
+              </button>
+            </div>
+
+            <div class="product-card__body">
+              {% if product.brand %}
+                <div class="product-card__brand">{{ product.brand }}</div>
+              {% endif %}
+              <a href="{% url 'product:detail' product.slug %}" class="product-card__name">{{ product.name }}</a>
+              <div class="product-card__sku">Арт. {{ product.sku }}</div>
+              <div class="product-card__footer">
+                <span class="product-card__price">{{ product.price|floatformat:0 }} ₽</span>
+                <button class="product-card__cart" type="button"
+                        onclick="addToCart({{ product.id }})"
+                        aria-label="В корзину">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>
+                  </svg>
+                  В корзину
+                </button>
+              </div>
+            </div>
+
+          </article>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p style="color:var(--muted);text-align:center;padding:48px 0;">
+        Товары появятся здесь после добавления через админ-панель.
+      </p>
+    {% endif %}
+
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     CTA STRIP
+════════════════════════════════════════════════════ -->
+<section class="cta-strip fade-up">
+  <div class="container">
+    <div class="cta-strip__label">Подбор запчастей</div>
+    <h2 class="cta-strip__title">Найдите деталь для вашего автомобиля</h2>
+    <p class="cta-strip__sub">Более 50 000 позиций в наличии. Поиск по VIN, артикулу или марке.</p>
+    <a href="{% url 'product:catalog' %}" class="btn-cta">
+      Открыть каталог
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+      </svg>
+    </a>
+  </div>
+</section>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'main/js/index.js' %}"></script>
+{% endblock %}

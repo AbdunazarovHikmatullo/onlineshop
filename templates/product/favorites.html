@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Избранное — VMARKET{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'product/css/catalog.css' %}">
+<link rel="stylesheet" href="{% static 'product/css/favorites.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="fav-page container">
+
+  <div class="fav-header">
+    <div>
+      <h1 class="fav-title">Избранное</h1>
+      {% if products %}
+        <p class="fav-sub">{{ products|length }} {{ products|length|pluralize:"товар,товара,товаров" }}</p>
+      {% endif %}
+    </div>
+    {% if products %}
+      <a href="{% url 'product:catalog' %}" class="btn btn-outline" style="padding:9px 20px;font-size:.875rem;">
+        В каталог
+      </a>
+    {% endif %}
+  </div>
+
+  {% if products %}
+    <div class="fav-grid">
+      {% for product in products %}
+        <article class="product-card" data-href="{% url 'product:detail' product.slug %}">
+
+          <div class="product-card__img-wrap">
+            {% with product.images.first as img %}
+              {% if img %}
+                <img class="product-card__img" src="{{ img.image.url }}" alt="{{ product.name }}" loading="lazy">
+              {% else %}
+                <div class="product-card__no-img">
+                  <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+                    <rect x="3" y="3" width="18" height="18" rx="2"/>
+                    <circle cx="8.5" cy="8.5" r="1.5"/>
+                    <polyline points="21 15 16 10 5 21"/>
+                  </svg>
+                </div>
+              {% endif %}
+            {% endwith %}
+            <button type="button"
+                    class="product-card__fav active"
+                    data-product-id="{{ product.id }}"
+                    onclick="toggleFav(this, {{ product.id }})"
+                    aria-label="Убрать из избранного">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+              </svg>
+            </button>
+          </div>
+
+          <div class="product-card__body">
+            {% if product.brand %}
+              <div class="product-card__brand">{{ product.brand }}</div>
+            {% endif %}
+            <a href="{% url 'product:detail' product.slug %}" class="product-card__name">{{ product.name }}</a>
+            <div class="product-card__sku">Арт. {{ product.sku }}</div>
+            <div class="product-card__footer">
+              <span class="product-card__price">{{ product.price|floatformat:0 }} ₽</span>
+              {% if product.stock > 0 %}
+                <button class="product-card__cart" type="button"
+                        onclick="addToCart({{ product.id }})"
+                        aria-label="В корзину">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+                    <line x1="3" y1="6" x2="21" y2="6"/>
+                    <path d="M16 10a4 4 0 0 1-8 0"/>
+                  </svg>
+                  В корзину
+                </button>
+              {% else %}
+                <span class="fav-out-of-stock">Нет в наличии</span>
+              {% endif %}
+            </div>
+          </div>
+
+        </article>
+      {% endfor %}
+    </div>
+
+  {% else %}
+    <div class="fav-empty">
+      <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width=".8">
+        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+      </svg>
+      <h2>Список избранного пуст</h2>
+      <p>Добавляйте товары, нажимая на сердечко в карточке</p>
+      <a href="{% url 'product:catalog' %}" class="btn btn-accent" style="padding:11px 28px;font-size:.95rem;">
+        Перейти в каталог
+      </a>
+    </div>
+  {% endif %}
+
+</div>
+{% endblock %}

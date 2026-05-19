@@ -1,0 +1,254 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ product.name }} — VMARKET{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'product/css/catalog.css' %}">
+<link rel="stylesheet" href="{% static 'product/css/detail.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="detail-page container">
+
+  <!-- ── Breadcrumb ───────────────────────────────────── -->
+  <nav class="detail-breadcrumb" aria-label="Хлебные крошки">
+    <a href="{% url 'product:index' %}">Главная</a>
+    <span class="detail-breadcrumb__sep">›</span>
+    <a href="{% url 'product:catalog' %}">Каталог</a>
+    <span class="detail-breadcrumb__sep">›</span>
+    <a href="{% url 'product:catalog' %}?category={{ product.category.slug }}">{{ product.category.name }}</a>
+    <span class="detail-breadcrumb__sep">›</span>
+    <span>{{ product.name }}</span>
+  </nav>
+
+  <!-- ── Main layout ─────────────────────────────────── -->
+  <div class="detail-layout">
+
+    <!-- Gallery -->
+    <div class="gallery">
+      <div class="gallery__main">
+        {% with product.images.first as main %}
+          {% if main %}
+            <img src="{{ main.image.url }}" alt="{{ product.name }}" id="mainImgEl">
+          {% else %}
+            <div class="gallery__no-img">
+              <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width=".8">
+                <rect x="3" y="3" width="18" height="18" rx="2"/>
+                <circle cx="8.5" cy="8.5" r="1.5"/>
+                <polyline points="21 15 16 10 5 21"/>
+              </svg>
+            </div>
+          {% endif %}
+        {% endwith %}
+      </div>
+
+      {% if product.images.count > 1 %}
+        <div class="gallery__thumbs">
+          {% for img in product.images.all %}
+            <div class="gallery__thumb {% if forloop.first %}active{% endif %}"
+                 onclick="switchImg(this, '{{ img.image.url }}')">
+              <img src="{{ img.image.url }}" alt="{{ product.name }} фото {{ forloop.counter }}">
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- Info panel -->
+    <div class="detail-info">
+
+      <div class="detail-meta">
+        {% if product.brand %}
+          <span class="detail-brand">{{ product.brand }}</span>
+        {% endif %}
+        <span class="detail-category">{{ product.category.name }}</span>
+      </div>
+
+      <h1 class="detail-name">{{ product.name }}</h1>
+      <div class="detail-sku">Артикул: <strong>{{ product.sku }}</strong></div>
+
+      {% if product.stock > 0 %}
+        <div class="detail-availability in-stock">
+          <span class="detail-availability__dot"></span>
+          В наличии&nbsp;&nbsp;·&nbsp;&nbsp;{{ product.stock }} шт.
+        </div>
+      {% else %}
+        <div class="detail-availability out-stock">
+          <span class="detail-availability__dot"></span>
+          Нет в наличии
+        </div>
+      {% endif %}
+
+      <div class="detail-price-row">
+        <span class="detail-price">{{ product.price|floatformat:0 }} ₽</span>
+        <span class="detail-price-note">за штуку</span>
+      </div>
+
+      <!-- Quantity + Add to cart -->
+      <div class="detail-action-row">
+        <div class="qty-control">
+          <button class="qty-btn" type="button" onclick="changeQty(-1)">−</button>
+          <input class="qty-input" type="number" id="detailQty" value="1" min="1" max="{{ product.stock }}">
+          <button class="qty-btn" type="button" onclick="changeQty(1)">+</button>
+        </div>
+        <button class="detail-cart-btn"
+                {% if product.stock == 0 %}disabled{% endif %}
+                onclick="addToCartDetail({{ product.id }})">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+            <line x1="3" y1="6" x2="21" y2="6"/>
+            <path d="M16 10a4 4 0 0 1-8 0"/>
+          </svg>
+          {% if product.stock == 0 %}Нет в наличии{% else %}В корзину{% endif %}
+        </button>
+      </div>
+
+      <p class="detail-note">
+        Оставьте заявку — мы свяжемся с вами и уточним наличие,<br>
+        стоимость доставки и сроки.
+      </p>
+
+      {% if user.is_superuser %}
+        <div class="detail-divider"></div>
+        <div class="detail-admin-bar">
+          <a href="{% url 'product:product_edit' product.slug %}" class="btn btn-outline btn-sm">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+            </svg>
+            Редактировать
+          </a>
+          <a href="{% url 'product:product_delete' product.slug %}"
+             class="btn btn-outline btn-sm"
+             style="color:#dc2626;border-color:#fca5a5;">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="3 6 5 6 21 6"/>
+              <path d="M19 6l-1 14H6L5 6"/>
+              <path d="M10 11v6"/><path d="M14 11v6"/>
+              <path d="M9 6V4h6v2"/>
+            </svg>
+            Удалить
+          </a>
+        </div>
+      {% endif %}
+
+    </div>
+  </div>
+
+  <!-- ── Tabs: Description + Attributes ─────────────── -->
+  {% if product.description or product.attributes.all %}
+    <div class="detail-tabs">
+      <div class="detail-tabs__nav">
+        {% if product.description %}
+          <button class="detail-tab-btn active" onclick="switchTab(this,'tab-desc')">Описание</button>
+        {% endif %}
+        {% if product.attributes.all %}
+          <button class="detail-tab-btn {% if not product.description %}active{% endif %}"
+                  onclick="switchTab(this,'tab-attrs')">Характеристики</button>
+        {% endif %}
+      </div>
+
+      {% if product.description %}
+        <div class="detail-tab-panel active" id="tab-desc">
+          <p class="detail-desc-text">{{ product.description|linebreaksbr }}</p>
+        </div>
+      {% endif %}
+
+      {% if product.attributes.all %}
+        <div class="detail-tab-panel {% if not product.description %}active{% endif %}" id="tab-attrs">
+          <table class="detail-attrs-table">
+            {% for attr in product.attributes.all %}
+              <tr>
+                <td>{{ attr.key }}</td>
+                <td>{{ attr.value }}{% if attr.unit %}&nbsp;{{ attr.unit }}{% endif %}</td>
+              </tr>
+            {% endfor %}
+          </table>
+        </div>
+      {% endif %}
+    </div>
+  {% endif %}
+
+  <!-- ── Related products ────────────────────────────── -->
+  {% if related %}
+    <section>
+      <h2 class="related__title">Похожие товары</h2>
+      <div class="related__grid">
+        {% for p in related %}
+          <article class="product-card">
+            <a href="{% url 'product:detail' p.slug %}" class="product-card__img-wrap" style="display:block;">
+              {% with p.images.first as img %}
+                {% if img %}
+                  <img class="product-card__img" src="{{ img.image.url }}" alt="{{ p.name }}" loading="lazy">
+                {% else %}
+                  <div class="product-card__no-img">
+                    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+                      <rect x="3" y="3" width="18" height="18" rx="2"/>
+                      <circle cx="8.5" cy="8.5" r="1.5"/>
+                      <polyline points="21 15 16 10 5 21"/>
+                    </svg>
+                  </div>
+                {% endif %}
+              {% endwith %}
+            </a>
+            <div class="product-card__body">
+              {% if p.brand %}<div class="product-card__brand">{{ p.brand }}</div>{% endif %}
+              <a href="{% url 'product:detail' p.slug %}" class="product-card__name">{{ p.name }}</a>
+              <div class="product-card__sku">Арт. {{ p.sku }}</div>
+              <div class="product-card__footer">
+                <span class="product-card__price">{{ p.price|floatformat:0 }} ₽</span>
+                <button class="product-card__cart" type="button"
+                        onclick="addToCart({{ p.id }})"
+                        aria-label="В корзину">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+                    <line x1="3" y1="6" x2="21" y2="6"/>
+                    <path d="M16 10a4 4 0 0 1-8 0"/>
+                  </svg>
+                  В корзину
+                </button>
+              </div>
+            </div>
+          </article>
+        {% endfor %}
+      </div>
+    </section>
+  {% endif %}
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+/* Gallery thumbnail switch */
+function switchImg(thumb, url) {
+  const el = document.getElementById('mainImgEl');
+  if (el) el.src = url;
+  document.querySelectorAll('.gallery__thumb').forEach(t => t.classList.remove('active'));
+  thumb.classList.add('active');
+}
+
+/* Quantity control */
+function changeQty(delta) {
+  const input = document.getElementById('detailQty');
+  const max = parseInt(input.max) || 999;
+  const next = Math.min(Math.max(1, parseInt(input.value) + delta), max);
+  input.value = next;
+}
+
+/* Add to cart with custom qty from detail page */
+function addToCartDetail(productId) {
+  const qty = parseInt(document.getElementById('detailQty').value) || 1;
+  addToCart(productId, qty);
+}
+
+/* Tab switcher */
+function switchTab(btn, panelId) {
+  document.querySelectorAll('.detail-tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.detail-tab-panel').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(panelId).classList.add('active');
+}
+</script>
+{% endblock %}

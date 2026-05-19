@@ -1,0 +1,46 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Регистрация — VMARKET</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'account/css/auth.css' %}">
+</head>
+<body>
+<div class="auth-wrap">
+  <div class="auth-card">
+
+    <a href="{% url 'product:index' %}" class="auth-logo">V<span>MARKET</span></a>
+
+    <h1 class="auth-title">Создать аккаунт</h1>
+    <p class="auth-sub">Регистрация займёт меньше минуты</p>
+
+    <form method="post" novalidate>
+      {% csrf_token %}
+
+      {% for field in form %}
+        <div class="auth-field">
+          <label class="auth-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+          {{ field }}
+          {% if field.errors %}
+            <ul class="auth-errors">
+              {% for e in field.errors %}<li>{{ e }}</li>{% endfor %}
+            </ul>
+          {% endif %}
+        </div>
+      {% endfor %}
+
+      <button class="auth-submit" type="submit">Зарегистрироваться</button>
+    </form>
+
+    <p class="auth-switch">
+      Уже есть аккаунт? <a href="{% url 'account:login' %}">Войти</a>
+    </p>
+
+  </div>
+</div>
+</body>
+</html>

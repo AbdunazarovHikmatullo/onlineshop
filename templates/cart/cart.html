@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Корзина — VMARKET{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'cart/css/cart.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="cart-page container">
+  <h1 class="cart-title">Корзина
+    {% if items %}<span style="color:var(--muted);font-weight:400;font-size:1.1rem;"> — {{ items|length }} {{ items|length|pluralize:"товар,товара,товаров" }}</span>{% endif %}
+  </h1>
+
+  {% if not items %}
+    <div class="cart-empty">
+      <svg class="cart-empty__icon" width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+        <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>
+      </svg>
+      <h3>Корзина пуста</h3>
+      <p>Добавьте товары из каталога</p>
+      <a href="{% url 'product:catalog' %}" class="btn btn-accent" style="margin-top:20px;padding:10px 24px;">Перейти в каталог</a>
+    </div>
+
+  {% else %}
+    <div class="cart-layout">
+
+      <!-- Items table -->
+      <div class="cart-table-wrap">
+        <table class="cart-table">
+          <thead>
+            <tr>
+              <th>Товар</th>
+              <th>Цена</th>
+              <th>Количество</th>
+              <th>Сумма</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in items %}
+              <tr>
+                <td>
+                  <a href="{% url 'product:detail' item.product.slug %}" class="cart-product">
+                    <div class="cart-product__img">
+                      {% with item.product.images.first as img %}
+                        {% if img %}
+                          <img src="{{ img.image.url }}" alt="{{ item.product.name }}">
+                        {% else %}
+                          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" style="color:var(--border)">
+                            <rect x="3" y="3" width="18" height="18" rx="2"/><polyline points="21 15 16 10 5 21"/>
+                          </svg>
+                        {% endif %}
+                      {% endwith %}
+                    </div>
+                    <div>
+                      <div class="cart-product__name">{{ item.product.name }}</div>
+                      <div class="cart-product__sku">Арт. {{ item.product.sku }}</div>
+                    </div>
+                  </a>
+                </td>
+                <td class="cart-price">{{ item.product.price|floatformat:0 }} ₽</td>
+                <td>
+                  <form method="post" action="{% url 'cart:update' item.product.pk %}" style="display:inline;">
+                    {% csrf_token %}
+                    <div class="qty-control">
+                      <button type="submit" name="quantity" value="{{ item.quantity|add:'-1' }}" class="qty-btn">−</button>
+                      <input class="qty-input" type="number" name="quantity" value="{{ item.quantity }}" min="1"
+                             onchange="this.form.submit()">
+                      <button type="submit" name="quantity" value="{{ item.quantity|add:'1' }}" class="qty-btn">+</button>
+                    </div>
+                  </form>
+                </td>
+                <td class="cart-price">{{ item.subtotal|floatformat:0 }} ₽</td>
+                <td>
+                  <form method="post" action="{% url 'cart:remove' item.product.pk %}">
+                    {% csrf_token %}
+                    <button type="submit" class="cart-remove" title="Удалить" aria-label="Удалить">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/>
+                      </svg>
+                    </button>
+                  </form>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Summary -->
+      <div class="cart-summary">
+        <div class="cart-summary__title">Итого</div>
+
+        {% for item in items %}
+          <div class="cart-summary__row">
+            <span style="color:var(--muted);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ item.product.name }}</span>
+            <span>{{ item.subtotal|floatformat:0 }} ₽</span>
+          </div>
+        {% endfor %}
+
+        <div class="cart-summary__row total">
+          <span>К оплате</span>
+          <span class="accent">{{ total|floatformat:0 }} ₽</span>
+        </div>
+
+        {% if messages %}
+          {% for msg in messages %}
+            <div class="cart-error">{{ msg }}</div>
+          {% endfor %}
+        {% endif %}
+
+        {% if user.is_authenticated %}
+          <form method="post" action="{% url 'cart:submit' %}">
+            {% csrf_token %}
+            <input class="cart-phone" type="tel" name="phone"
+                   placeholder="Номер телефона *" required
+                   value="{{ request.user.phone }}">
+            <textarea class="cart-comment" name="comment" placeholder="Комментарий к заказу (необязательно)…"></textarea>
+            <button type="submit" class="cart-submit">Оставить заявку</button>
+          </form>
+        {% else %}
+          <button class="cart-submit" style="background:var(--muted);cursor:not-allowed;" disabled>Оставить заявку</button>
+          <p class="cart-login-note">
+            <a href="{% url 'account:login' %}?next={% url 'cart:cart' %}">Войдите</a>, чтобы оформить заявку
+          </p>
+        {% endif %}
+      </div>
+
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

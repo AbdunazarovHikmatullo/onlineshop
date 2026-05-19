@@ -1,0 +1,160 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Профиль — VMARKET{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top:36px; padding-bottom:72px; max-width:660px;">
+
+  <h1 style="font-size:1.6rem; font-weight:800; letter-spacing:-.02em; margin-bottom:28px;">Профиль</h1>
+
+  {% if messages %}
+    {% for msg in messages %}
+      <div class="profile-alert profile-alert--{{ msg.tags }}" style="
+        background:{% if 'success' in msg.tags %}#f0fdf4{% else %}#fef2f2{% endif %};
+        border:1px solid {% if 'success' in msg.tags %}#bbf7d0{% else %}#fca5a5{% endif %};
+        color:{% if 'success' in msg.tags %}#166534{% else %}#dc2626{% endif %};
+        border-radius:6px; padding:12px 16px; font-size:.875rem; font-weight:600;
+        margin-bottom:20px;">
+        {{ msg }}
+      </div>
+    {% endfor %}
+  {% endif %}
+
+  <!-- User info card -->
+  <div class="profile-card">
+    <div class="profile-card__title">Данные аккаунта</div>
+    <div class="profile-row"><span class="profile-label">Имя пользователя</span><span>{{ user.username }}</span></div>
+    {% if user.get_full_name %}
+    <div class="profile-row"><span class="profile-label">Имя</span><span>{{ user.get_full_name }}</span></div>
+    {% endif %}
+    {% if user.email %}
+    <div class="profile-row"><span class="profile-label">E-mail</span><span>{{ user.email }}</span></div>
+    {% endif %}
+    {% if user.phone %}
+    <div class="profile-row"><span class="profile-label">Телефон</span><span>{{ user.phone }}</span></div>
+    {% endif %}
+  </div>
+
+  <!-- Telegram connect card -->
+  <div class="profile-card" style="margin-top:20px;">
+    <div class="profile-card__title">Telegram-уведомления</div>
+
+    {% if user.telegram_id %}
+      <div style="display:flex; align-items:center; gap:10px; margin-bottom:18px;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        <span style="font-weight:600; color:#166534;">Telegram подключён</span>
+        <span style="font-size:.8rem; color:var(--muted);">ID: {{ user.telegram_id }}</span>
+      </div>
+      <p style="font-size:.875rem; color:var(--muted); margin-bottom:18px;">
+        Вы будете получать уведомления о статусе заказов в Telegram.
+      </p>
+      <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="telegram_id" value="">
+        <button type="submit" class="btn btn-outline btn-sm" style="color:#dc2626; border-color:#fca5a5;">
+          Отключить Telegram
+        </button>
+      </form>
+    {% else %}
+      <p style="font-size:.875rem; color:var(--muted); margin-bottom:18px; line-height:1.6;">
+        Подключите Telegram, чтобы получать уведомления о&nbsp;заказах прямо в&nbsp;мессенджер.
+      </p>
+
+      <!-- Step by step -->
+      <ol class="tg-steps">
+        <li>
+          {% if bot_username %}
+            <a href="https://t.me/{{ bot_username }}?start={{ user.pk }}" target="_blank" rel="noopener" class="btn btn-accent btn-sm">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
+              Открыть бота в Telegram
+            </a>
+          {% else %}
+            <span class="profile-label">Запустите бота: <code>python manage.py run_bot</code> — затем найдите бота и отправьте <code>/start {{ user.pk }}</code></span>
+          {% endif %}
+        </li>
+        <li>Бот автоматически свяжет ваш аккаунт после нажатия кнопки выше.</li>
+      </ol>
+
+      <div style="margin-top:20px; border-top:1px solid var(--border); padding-top:16px;">
+        <p style="font-size:.78rem; color:var(--muted); margin-bottom:10px;">
+          Или введите Chat ID вручную (узнайте его, написав боту <a href="https://t.me/userinfobot" target="_blank" style="color:var(--accent);">@userinfobot</a>):
+        </p>
+        <form method="post" style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+          {% csrf_token %}
+          <input type="text" name="telegram_id" placeholder="Ваш Chat ID, например 123456789"
+                 pattern="-?[0-9]+" title="Только цифры"
+                 style="flex:1; min-width:200px; padding:9px 12px; border:1.5px solid var(--border);
+                        border-radius:var(--radius); font-size:.875rem; outline:none;">
+          <button type="submit" class="btn btn-primary btn-sm">Сохранить</button>
+        </form>
+      </div>
+    {% endif %}
+  </div>
+
+  <!-- Recent orders -->
+  <div class="profile-card" style="margin-top:20px;">
+    <div class="profile-card__title">Мои заказы</div>
+    {% if recent_orders %}
+        <table style="width:100%; border-collapse:collapse; font-size:.875rem;">
+          <thead>
+            <tr style="border-bottom:1px solid var(--border);">
+              <th style="text-align:left; padding:8px 0; color:var(--muted); font-size:.72rem; text-transform:uppercase; letter-spacing:.07em;">№</th>
+              <th style="text-align:left; padding:8px 12px; color:var(--muted); font-size:.72rem; text-transform:uppercase; letter-spacing:.07em;">Дата</th>
+              <th style="text-align:left; padding:8px 12px; color:var(--muted); font-size:.72rem; text-transform:uppercase; letter-spacing:.07em;">Сумма</th>
+              <th style="text-align:left; padding:8px 0; color:var(--muted); font-size:.72rem; text-transform:uppercase; letter-spacing:.07em;">Статус</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for order in recent_orders %}
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:10px 0; font-weight:600;">#{{ order.pk }}</td>
+              <td style="padding:10px 12px; color:var(--muted);">{{ order.created_at|date:"d.m.Y" }}</td>
+              <td style="padding:10px 12px; font-weight:700;">{{ order.total_price|floatformat:0 }} ₽</td>
+              <td style="padding:10px 0;">
+                <span class="status-badge status-{{ order.status }}">{{ order.get_status_display }}</span>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <p style="color:var(--muted); font-size:.875rem; padding:16px 0;">У вас пока нет заказов.</p>
+      {% endif %}
+  </div>
+
+</div>
+
+<style>
+.profile-card {
+  background: var(--white); border: 1px solid var(--border);
+  border-radius: 8px; padding: 24px;
+}
+.profile-card__title {
+  font-size: .75rem; font-weight: 700; letter-spacing: .09em;
+  text-transform: uppercase; color: var(--muted); margin-bottom: 18px;
+}
+.profile-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 9px 0; border-bottom: 1px solid var(--border); font-size: .875rem;
+}
+.profile-row:last-child { border-bottom: none; }
+.profile-label { color: var(--muted); }
+.tg-steps {
+  list-style: none; counter-reset: step;
+  display: flex; flex-direction: column; gap: 12px;
+}
+.tg-steps li {
+  counter-increment: step;
+  display: flex; align-items: flex-start; gap: 12px;
+  font-size: .875rem;
+}
+.tg-steps li::before {
+  content: counter(step);
+  flex-shrink: 0; width: 22px; height: 22px; border-radius: 50%;
+  background: var(--bg); border: 1px solid var(--border);
+  display: grid; place-items: center;
+  font-size: .72rem; font-weight: 700; color: var(--muted);
+}
+</style>
+{% endblock %}

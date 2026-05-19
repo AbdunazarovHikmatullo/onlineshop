@@ -1,0 +1,58 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Войти — VMARKET</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'account/css/auth.css' %}">
+</head>
+<body>
+<div class="auth-wrap">
+  <div class="auth-card">
+
+    <a href="{% url 'product:index' %}" class="auth-logo">V<span>MARKET</span></a>
+
+    <h1 class="auth-title">Добро пожаловать</h1>
+    <p class="auth-sub">Войдите в свой аккаунт</p>
+
+    {% if form.non_field_errors %}
+      <div class="auth-global-error">{{ form.non_field_errors.0 }}</div>
+    {% endif %}
+
+    <form method="post" novalidate>
+      {% csrf_token %}
+
+      <div class="auth-field">
+        <label class="auth-label" for="{{ form.username.id_for_label }}">Логин</label>
+        {{ form.username }}
+        {% if form.username.errors %}
+          <ul class="auth-errors">
+            {% for e in form.username.errors %}<li>{{ e }}</li>{% endfor %}
+          </ul>
+        {% endif %}
+      </div>
+
+      <div class="auth-field">
+        <label class="auth-label" for="{{ form.password.id_for_label }}">Пароль</label>
+        {{ form.password }}
+        {% if form.password.errors %}
+          <ul class="auth-errors">
+            {% for e in form.password.errors %}<li>{{ e }}</li>{% endfor %}
+          </ul>
+        {% endif %}
+      </div>
+
+      <button class="auth-submit" type="submit">Войти</button>
+    </form>
+
+    <p class="auth-switch">
+      Нет аккаунта? <a href="{% url 'account:register' %}">Зарегистрироваться</a>
+    </p>
+
+  </div>
+</div>
+</body>
+</html>

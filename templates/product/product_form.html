@@ -1,0 +1,573 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ action }} — VMARKET{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ── Layout ───────────────────────────────────────── */
+.pf { max-width: 820px; padding: 32px 0 72px; }
+.pf-title { font-size: 1.45rem; font-weight: 800; letter-spacing: -.02em; margin-bottom: 28px; }
+
+.pf-card {
+  background: #fff; border: 1px solid var(--border);
+  border-radius: 8px; margin-bottom: 16px; overflow: hidden;
+}
+.pf-card__head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 13px 20px; border-bottom: 1px solid var(--border);
+  font-size: .72rem; font-weight: 700; letter-spacing: .09em;
+  text-transform: uppercase; color: var(--muted);
+}
+.pf-card__body { padding: 20px; }
+
+/* ── Fields ───────────────────────────────────────── */
+.pf-grid   { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.pf-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+.pf-full   { grid-column: 1 / -1; }
+
+.pf-field  { display: flex; flex-direction: column; gap: 5px; }
+.pf-label  {
+  font-size: .78rem; font-weight: 600; color: #444;
+  display: flex; align-items: center; gap: 6px;
+}
+.pf-req    { color: var(--accent); }
+.pf-hint   { font-size: .7rem; color: #aaa; font-weight: 400; }
+
+.form-input, .pf select, .pf textarea {
+  width: 100%; padding: 9px 12px;
+  border: 1.5px solid var(--border); border-radius: var(--radius);
+  font-size: .9rem; font-family: inherit; outline: none;
+  background: #fff; transition: border-color var(--t), box-shadow var(--t);
+  color: var(--text);
+}
+.form-input:focus, .pf select:focus, .pf textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(232,64,0,.08);
+}
+.form-input.error, .pf select.error, .pf textarea.error {
+  border-color: #dc2626;
+}
+.pf textarea { resize: vertical; min-height: 90px; }
+
+.pf-slug-row {
+  display: flex; gap: 0; align-items: stretch;
+}
+.pf-slug-row .form-input {
+  border-radius: var(--radius) 0 0 var(--radius); flex: 1;
+  font-size: .8rem; color: var(--muted);
+}
+.pf-slug-refresh {
+  padding: 0 12px; border: 1.5px solid var(--border); border-left: none;
+  border-radius: 0 var(--radius) var(--radius) 0;
+  background: var(--bg); cursor: pointer; color: var(--muted);
+  font-size: .75rem; font-weight: 600; white-space: nowrap;
+  transition: background var(--t), color var(--t);
+}
+.pf-slug-refresh:hover { background: var(--border); color: var(--text); }
+
+.pf-error { font-size: .76rem; color: #dc2626; margin-top: 2px; }
+
+.pf-check  { display: flex; align-items: center; gap: 9px; cursor: pointer; font-size: .9rem; }
+.pf-check input[type=checkbox] { width: 16px; height: 16px; accent-color: var(--accent); cursor: pointer; }
+
+/* ── Image upload ─────────────────────────────────── */
+.img-drop {
+  border: 2px dashed var(--border); border-radius: 8px;
+  padding: 28px 20px; text-align: center; cursor: pointer;
+  transition: border-color var(--t), background var(--t);
+  background: #fafafa;
+}
+.img-drop:hover, .img-drop.drag-over {
+  border-color: var(--accent); background: rgba(232,64,0,.03);
+}
+.img-drop__icon { color: var(--border); margin-bottom: 10px; }
+.img-drop__text { font-size: .875rem; color: var(--muted); }
+.img-drop__text strong { color: var(--accent); cursor: pointer; }
+.img-drop__sub  { font-size: .75rem; color: #bbb; margin-top: 4px; }
+
+.img-previews { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+.img-preview {
+  position: relative; width: 100px; height: 100px;
+  border-radius: 6px; overflow: hidden;
+  border: 2px solid var(--border); flex-shrink: 0;
+  cursor: pointer; transition: border-color var(--t);
+}
+.img-preview img { width: 100%; height: 100%; object-fit: cover; }
+.img-preview__remove {
+  position: absolute; top: 4px; right: 4px;
+  width: 20px; height: 20px; border-radius: 50%;
+  background: rgba(0,0,0,.6); color: #fff;
+  display: grid; place-items: center; font-size: .7rem;
+  cursor: pointer; z-index: 2;
+}
+.img-preview__main-badge {
+  position: absolute; bottom: 4px; left: 4px;
+  font-size: .62rem; font-weight: 700; background: var(--accent); color: #fff;
+  padding: 2px 5px; border-radius: 3px; opacity: 0;
+  transition: opacity var(--t);
+}
+.img-preview.is-main { border-color: var(--accent); }
+.img-preview.is-main .img-preview__main-badge { opacity: 1; }
+.img-select-hint { font-size: .75rem; color: var(--muted); margin-top: 6px; }
+
+/* Existing images (edit mode) */
+.img-existing-grid { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; }
+.img-existing-item {
+  position: relative; width: 90px; height: 90px;
+  border-radius: 6px; overflow: hidden;
+  border: 2px solid var(--border); flex-shrink: 0;
+  cursor: pointer; transition: border-color var(--t);
+}
+.img-existing-item img { width: 100%; height: 100%; object-fit: cover; }
+.img-existing-item.is-main { border-color: var(--accent); }
+.img-existing-item.marked-delete { opacity: .35; }
+.img-existing-item.is-main .img-preview__main-badge { opacity: 1; }
+.img-existing-actions {
+  display: flex; gap: 4px; justify-content: center;
+  margin-top: 4px;
+}
+.img-existing-wrap { display: flex; flex-direction: column; align-items: center; }
+.img-action-btn {
+  font-size: .65rem; padding: 2px 6px; border-radius: 3px; cursor: pointer;
+  border: 1px solid var(--border); background: #fff; font-weight: 600;
+  transition: background var(--t), color var(--t);
+}
+.img-action-btn:hover { background: var(--bg); }
+.img-action-btn.del { border-color: #fca5a5; color: #dc2626; }
+.img-action-btn.del:hover { background: #dc2626; color: #fff; border-color: #dc2626; }
+.img-action-btn.main-btn { border-color: var(--accent); color: var(--accent); }
+.img-action-btn.main-btn.active { background: var(--accent); color: #fff; }
+
+/* ── Attributes ───────────────────────────────────── */
+.attr-table { width: 100%; border-collapse: collapse; }
+.attr-table th {
+  font-size: .7rem; font-weight: 700; letter-spacing: .07em;
+  text-transform: uppercase; color: var(--muted);
+  padding: 0 8px 8px 0; text-align: left;
+}
+.attr-row td { padding: 4px 6px 4px 0; vertical-align: top; }
+.attr-row td:last-child { width: 36px; padding-right: 0; }
+.attr-row .form-input { font-size: .85rem; padding: 7px 10px; }
+.attr-remove {
+  width: 30px; height: 36px; display: grid; place-items: center;
+  background: none; border: 1.5px solid var(--border); border-radius: var(--radius);
+  cursor: pointer; color: var(--muted); transition: all var(--t); margin-top: 1px;
+}
+.attr-remove:hover { border-color: #dc2626; color: #dc2626; background: #fef2f2; }
+.attr-add-btn {
+  margin-top: 12px; font-size: .8rem; font-weight: 600;
+  color: var(--accent); background: none; border: none;
+  cursor: pointer; padding: 0; display: flex; align-items: center; gap: 4px;
+}
+.attr-add-btn:hover { opacity: .75; }
+
+/* ── Actions ──────────────────────────────────────── */
+.pf-actions { display: flex; gap: 10px; margin-top: 24px; align-items: center; }
+.pf-save {
+  padding: 11px 28px; background: var(--accent); color: #fff; border: none;
+  border-radius: var(--radius); font-size: .95rem; font-weight: 700;
+  cursor: pointer; transition: background var(--t);
+}
+.pf-save:hover { background: var(--accent-h); }
+
+/* ── Validation ───────────────────────────────────── */
+.pf-field-invalid .form-input,
+.pf-field-invalid select,
+.pf-field-invalid textarea { border-color: #dc2626 !important; }
+.pf-field-invalid .pf-label { color: #dc2626; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="pf container">
+  <h1 class="pf-title">{{ action }}</h1>
+
+  <form method="post" enctype="multipart/form-data" id="pf-form" novalidate>
+    {% csrf_token %}
+    {{ attr_fs.management_form }}
+
+    <!-- ── Основная информация ──────────────────────── -->
+    <div class="pf-card">
+      <div class="pf-card__head">Основная информация</div>
+      <div class="pf-card__body">
+
+        <div class="pf-grid" style="margin-bottom:14px;">
+          <div class="pf-field pf-full">
+            <label class="pf-label" for="{{ form.category.id_for_label }}">
+              Категория <span class="pf-req">*</span>
+            </label>
+            {{ form.category }}
+            {% if form.category.errors %}<div class="pf-error">{{ form.category.errors.0 }}</div>{% endif %}
+          </div>
+
+          <div class="pf-field pf-full" id="field-name">
+            <label class="pf-label" for="{{ form.name.id_for_label }}">
+              Название <span class="pf-req">*</span>
+            </label>
+            {{ form.name }}
+            {% if form.name.errors %}<div class="pf-error">{{ form.name.errors.0 }}</div>{% endif %}
+          </div>
+
+          <div class="pf-field" id="field-sku">
+            <label class="pf-label" for="{{ form.sku.id_for_label }}">
+              Артикул <span class="pf-req">*</span>
+              <span class="pf-hint">уникальный код товара</span>
+            </label>
+            {{ form.sku }}
+            {% if form.sku.errors %}<div class="pf-error">{{ form.sku.errors.0 }}</div>{% endif %}
+          </div>
+
+          <div class="pf-field">
+            <label class="pf-label" for="{{ form.brand.id_for_label }}">Бренд</label>
+            {{ form.brand }}
+          </div>
+
+          <div class="pf-field" id="field-price">
+            <label class="pf-label" for="{{ form.price.id_for_label }}">
+              Цена, ₽ <span class="pf-req">*</span>
+            </label>
+            {{ form.price }}
+            {% if form.price.errors %}<div class="pf-error">{{ form.price.errors.0 }}</div>{% endif %}
+          </div>
+
+          <div class="pf-field">
+            <label class="pf-label" for="{{ form.stock.id_for_label }}">
+              Остаток, шт.
+            </label>
+            {{ form.stock }}
+          </div>
+
+          <div class="pf-field pf-full">
+            <label class="pf-label" for="{{ form.description.id_for_label }}">Описание</label>
+            {{ form.description }}
+          </div>
+
+          <!-- Slug (collapsed, auto-filled) -->
+          <div class="pf-field pf-full">
+            <label class="pf-label" for="{{ form.slug.id_for_label }}">
+              URL-slug
+              <span class="pf-hint">заполняется автоматически</span>
+            </label>
+            <div class="pf-slug-row">
+              {{ form.slug }}
+              <button type="button" class="pf-slug-refresh" onclick="regenerateSlug()">↻ обновить</button>
+            </div>
+            {% if form.slug.errors %}<div class="pf-error">{{ form.slug.errors.0 }}</div>{% endif %}
+          </div>
+
+          <div class="pf-field">
+            <label class="pf-check">
+              {{ form.is_available }}
+              <span>Доступен для заказа</span>
+            </label>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── Фотографии ────────────────────────────────── -->
+    <div class="pf-card">
+      <div class="pf-card__head">Фотографии</div>
+      <div class="pf-card__body">
+
+        {% if existing_images %}
+          <div style="margin-bottom:4px;">
+            <div class="pf-label" style="margin-bottom:10px;">Текущие фотографии</div>
+            <div class="img-existing-grid">
+              {% for img in existing_images %}
+                <div class="img-existing-wrap">
+                  <div class="img-existing-item {% if img.is_main %}is-main{% endif %}"
+                       id="existing-{{ img.pk }}"
+                       onclick="setMainExisting({{ img.pk }})">
+                    <img src="{{ img.image.url }}" alt="">
+                    <div class="img-preview__main-badge">Главное</div>
+                  </div>
+                  <div class="img-existing-actions">
+                    <button type="button"
+                            class="img-action-btn main-btn {% if img.is_main %}active{% endif %}"
+                            id="main-btn-{{ img.pk }}"
+                            onclick="setMainExisting({{ img.pk }})">★</button>
+                    <button type="button"
+                            class="img-action-btn del"
+                            onclick="markDeleteImage({{ img.pk }}, this)">✕</button>
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+            <input type="hidden" name="main_existing" id="main_existing_input"
+                   value="{% for img in existing_images %}{% if img.is_main %}{{ img.pk }}{% endif %}{% endfor %}">
+          </div>
+          <div class="pf-label" style="margin-bottom:10px;margin-top:20px;">Добавить ещё</div>
+        {% endif %}
+
+        <!-- Drag-drop zone -->
+        <div class="img-drop" id="imgDrop" onclick="document.getElementById('imgFileInput').click()">
+          <div class="img-drop__icon">
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="17 8 12 3 7 8"/>
+              <line x1="12" y1="3" x2="12" y2="15"/>
+            </svg>
+          </div>
+          <div class="img-drop__text">Перетащите фото сюда или <strong>нажмите для выбора</strong></div>
+          <div class="img-drop__sub">JPG, PNG, WEBP · несколько файлов сразу</div>
+        </div>
+        <input type="file" id="imgFileInput" name="images" multiple accept="image/*" style="display:none">
+
+        <div class="img-previews" id="imgPreviews"></div>
+        <div class="img-select-hint" id="imgHint" style="display:none">
+          Нажмите на фото, чтобы сделать его <strong>главным</strong>
+        </div>
+        <input type="hidden" name="main_image" id="mainImageInput" value="0">
+
+      </div>
+    </div>
+
+    <!-- ── Характеристики ───────────────────────────── -->
+    <div class="pf-card">
+      <div class="pf-card__head">
+        Характеристики
+        <span style="font-size:.75rem;font-weight:400;color:#bbb;text-transform:none;letter-spacing:0;">необязательно</span>
+      </div>
+      <div class="pf-card__body">
+
+        <table class="attr-table">
+          <thead>
+            <tr>
+              <th style="width:38%">Название</th>
+              <th style="width:38%">Значение</th>
+              <th style="width:18%">Ед. изм.</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="attr-body">
+            {% for f in attr_fs %}
+              {{ f.id }}
+              <tr class="attr-row">
+                <td>{{ f.key }}</td>
+                <td>{{ f.value }}</td>
+                <td>{{ f.unit }}</td>
+                <td>
+                  {% if f.instance.pk %}
+                    <label style="display:flex;align-items:center;gap:3px;font-size:.7rem;color:#dc2626;cursor:pointer;white-space:nowrap;">
+                      {{ f.DELETE }}&nbsp;✕
+                    </label>
+                  {% else %}
+                    <button type="button" class="attr-remove" onclick="removeAttrRow(this)">✕</button>
+                  {% endif %}
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+
+        <button type="button" class="attr-add-btn" onclick="addAttrRow()">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Добавить характеристику
+        </button>
+
+      </div>
+    </div>
+
+    <div class="pf-actions">
+      <button type="submit" class="pf-save">Сохранить товар</button>
+      {% if product %}
+        <a href="{% url 'product:detail' product.slug %}" class="btn btn-outline" style="padding:11px 20px;">Отмена</a>
+      {% else %}
+        <a href="{% url 'product:catalog' %}" class="btn btn-outline" style="padding:11px 20px;">Отмена</a>
+      {% endif %}
+    </div>
+
+  </form>
+</div>
+
+<script>
+/* ── Transliteration ──────────────────────────────── */
+const RU_EN = {
+  'а':'a','б':'b','в':'v','г':'g','д':'d','е':'e','ё':'yo','ж':'zh',
+  'з':'z','и':'i','й':'j','к':'k','л':'l','м':'m','н':'n','о':'o',
+  'п':'p','р':'r','с':'s','т':'t','у':'u','ф':'f','х':'kh','ц':'ts',
+  'ч':'ch','ш':'sh','щ':'sch','ъ':'','ы':'y','ь':'','э':'e','ю':'yu','я':'ya',
+};
+function translit(s) {
+  return s.toLowerCase().split('').map(c => RU_EN[c] ?? c).join('');
+}
+function toSlug(s) {
+  return translit(s).replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+}
+
+/* ── Slug auto-fill ───────────────────────────────── */
+const nameEl = document.getElementById('id_name');
+const slugEl = document.getElementById('id_slug');
+let slugEdited = !!slugEl.value;
+
+if (nameEl) {
+  nameEl.addEventListener('input', () => {
+    if (!slugEdited) slugEl.value = toSlug(nameEl.value);
+  });
+}
+slugEl.addEventListener('input', () => { slugEdited = true; });
+
+function regenerateSlug() {
+  if (nameEl) { slugEl.value = toSlug(nameEl.value); slugEdited = false; }
+}
+
+/* ── Image upload & preview ──────────────────────── */
+let selectedFiles = [];
+
+function renderPreviews() {
+  const container = document.getElementById('imgPreviews');
+  const hint = document.getElementById('imgHint');
+  container.innerHTML = '';
+  if (selectedFiles.length === 0) { hint.style.display = 'none'; return; }
+  hint.style.display = 'block';
+  selectedFiles.forEach((file, i) => {
+    const url = URL.createObjectURL(file);
+    const wrap = document.createElement('div');
+    wrap.className = 'img-preview' + (i === mainIndex ? ' is-main' : '');
+    wrap.innerHTML = `
+      <img src="${url}" alt="">
+      <div class="img-preview__remove" onclick="removePreview(${i}, event)">✕</div>
+      <div class="img-preview__main-badge">Главное</div>`;
+    wrap.addEventListener('click', () => setMain(i));
+    container.appendChild(wrap);
+  });
+  document.getElementById('mainImageInput').value = mainIndex;
+}
+
+let mainIndex = 0;
+
+function setMain(i) {
+  mainIndex = i;
+  renderPreviews();
+}
+
+function removePreview(i, e) {
+  e.stopPropagation();
+  selectedFiles.splice(i, 1);
+  if (mainIndex >= selectedFiles.length) mainIndex = 0;
+  updateFileInput();
+  renderPreviews();
+}
+
+function updateFileInput() {
+  const dt = new DataTransfer();
+  selectedFiles.forEach(f => dt.items.add(f));
+  document.getElementById('imgFileInput').files = dt.files;
+}
+
+document.getElementById('imgFileInput').addEventListener('change', function () {
+  const added = Array.from(this.files);
+  selectedFiles = selectedFiles.concat(added);
+  mainIndex = 0;
+  updateFileInput();
+  renderPreviews();
+});
+
+const drop = document.getElementById('imgDrop');
+drop.addEventListener('dragover', e => { e.preventDefault(); drop.classList.add('drag-over'); });
+drop.addEventListener('dragleave', () => drop.classList.remove('drag-over'));
+drop.addEventListener('drop', e => {
+  e.preventDefault(); drop.classList.remove('drag-over');
+  const files = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/'));
+  selectedFiles = selectedFiles.concat(files);
+  mainIndex = 0;
+  updateFileInput();
+  renderPreviews();
+});
+
+/* ── Existing images (edit) ──────────────────────── */
+const deletedImages = new Set();
+
+function markDeleteImage(id, btn) {
+  const item = document.getElementById('existing-' + id);
+  if (deletedImages.has(id)) {
+    deletedImages.delete(id);
+    item.classList.remove('marked-delete');
+    btn.textContent = '✕';
+  } else {
+    deletedImages.add(id);
+    item.classList.add('marked-delete');
+    btn.textContent = '↩';
+    if (document.getElementById('main_existing_input')?.value == id) {
+      document.getElementById('main_existing_input').value = '';
+      item.classList.remove('is-main');
+    }
+  }
+  syncDeleteInputs();
+}
+
+function syncDeleteInputs() {
+  document.querySelectorAll('.del-hidden').forEach(el => el.remove());
+  deletedImages.forEach(id => {
+    const inp = document.createElement('input');
+    inp.type = 'hidden'; inp.name = 'delete_image'; inp.value = id;
+    inp.className = 'del-hidden';
+    document.getElementById('pf-form').appendChild(inp);
+  });
+}
+
+function setMainExisting(id) {
+  if (deletedImages.has(id)) return;
+  document.getElementById('main_existing_input').value = id;
+  document.querySelectorAll('.img-existing-item').forEach(el => {
+    el.classList.remove('is-main');
+    const btn = el.nextElementSibling?.querySelector('.main-btn');
+    if (btn) btn.classList.remove('active');
+  });
+  const item = document.getElementById('existing-' + id);
+  if (item) {
+    item.classList.add('is-main');
+    const btn = item.nextElementSibling?.querySelector('.main-btn');
+    if (btn) btn.classList.add('active');
+  }
+}
+
+/* ── Attributes – dynamic rows ───────────────────── */
+function getAttrCount() {
+  return document.querySelectorAll('#attr-body .attr-row').length;
+}
+
+function addAttrRow() {
+  const total = document.getElementById('id_attrs-TOTAL_FORMS');
+  const idx = parseInt(total.value);
+  const tr = document.createElement('tr');
+  tr.className = 'attr-row';
+  tr.innerHTML = `
+    <td><input class="form-input" type="text" name="attrs-${idx}-key" placeholder="Мощность"></td>
+    <td><input class="form-input" type="text" name="attrs-${idx}-value" placeholder="150"></td>
+    <td><input class="form-input" type="text" name="attrs-${idx}-unit" placeholder="л.с."></td>
+    <td><button type="button" class="attr-remove" onclick="removeAttrRow(this)">✕</button></td>`;
+  document.getElementById('attr-body').appendChild(tr);
+  total.value = idx + 1;
+}
+
+function removeAttrRow(btn) {
+  btn.closest('.attr-row').remove();
+}
+
+/* ── Client-side validation ──────────────────────── */
+document.getElementById('pf-form').addEventListener('submit', function (e) {
+  let ok = true;
+  const required = [
+    { id: 'id_category', label: 'Категория' },
+    { id: 'id_name',     label: 'Название' },
+    { id: 'id_sku',      label: 'Артикул' },
+    { id: 'id_price',    label: 'Цена' },
+  ];
+  required.forEach(({ id }) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const empty = !el.value.trim();
+    el.classList.toggle('error', empty);
+    if (empty) ok = false;
+  });
+  if (!ok) {
+    e.preventDefault();
+    document.querySelector('.error, .form-input.error')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+});
+</script>
+{% endblock %}

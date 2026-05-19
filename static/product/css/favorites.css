@@ -1,0 +1,46 @@
+.fav-page { padding: 36px 0 72px; }
+
+.fav-header {
+  display: flex; align-items: flex-end; justify-content: space-between;
+  margin-bottom: 32px;
+}
+.fav-title { font-size: 1.7rem; font-weight: 800; letter-spacing: -.02em; }
+.fav-sub   { color: var(--muted); font-size: .875rem; margin-top: 4px; }
+
+.fav-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+}
+
+.fav-out-of-stock {
+  font-size: .75rem; color: var(--muted); font-weight: 600;
+}
+
+/* Card removing animation */
+.product-card.fav-removing {
+  opacity: 0;
+  transform: scale(.95);
+  transition: opacity 260ms ease, transform 260ms ease;
+  pointer-events: none;
+}
+
+/* Empty state */
+.fav-empty {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 14px; padding: 80px 0; text-align: center; color: var(--muted);
+}
+.fav-empty svg { color: var(--border); margin-bottom: 8px; }
+.fav-empty h2 { font-size: 1.2rem; font-weight: 700; color: var(--text); }
+.fav-empty p  { font-size: .9rem; max-width: 280px; }
+
+/* ════════════════════════════════════════════════════════
+   MOBILE RESPONSIVE — Favorites page
+════════════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+  .fav-page { padding: 20px 0 48px; }
+  .fav-title { font-size: 1.3rem; }
+  .fav-header { flex-direction: column; align-items: flex-start; gap: 4px; margin-bottom: 20px; }
+  .fav-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .fav-empty { padding: 48px 0; }
+}

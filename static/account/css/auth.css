@@ -1,0 +1,89 @@
+/* ── Auth pages (standalone, не extends base) ─────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 16px; }
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background: #f5f5f5; color: #0f0f0f;
+  min-height: 100vh; display: grid; place-items: center;
+  -webkit-font-smoothing: antialiased;
+}
+
+.auth-wrap {
+  width: 100%; max-width: 420px; padding: 24px;
+}
+.auth-card {
+  background: #fff; border: 1px solid #e8e8e8;
+  border-radius: 8px; padding: 40px 36px;
+}
+
+/* Logo */
+.auth-logo {
+  display: block; text-align: center; margin-bottom: 28px;
+  font-size: 1.4rem; font-weight: 800; letter-spacing: -.5px;
+  color: #0f0f0f; text-decoration: none;
+}
+.auth-logo span { color: #e84000; }
+
+/* Heading */
+.auth-title {
+  font-size: 1.2rem; font-weight: 700; margin-bottom: 6px; text-align: center;
+}
+.auth-sub {
+  font-size: .875rem; color: #717171; text-align: center; margin-bottom: 28px;
+}
+
+/* Form */
+.auth-field { margin-bottom: 14px; }
+.auth-label {
+  display: block; font-size: .8rem; font-weight: 600;
+  margin-bottom: 5px; color: #333;
+}
+.auth-input {
+  width: 100%; height: 42px; padding: 0 14px;
+  border: 1.5px solid #e8e8e8; border-radius: 4px;
+  font-size: .9rem; outline: none;
+  transition: border-color 180ms ease;
+}
+.auth-input:focus { border-color: #0f0f0f; }
+
+/* Error list */
+.auth-errors {
+  list-style: none; margin-top: 4px;
+}
+.auth-errors li {
+  font-size: .78rem; color: #e84000; margin-top: 2px;
+}
+
+/* Submit */
+.auth-submit {
+  width: 100%; height: 44px; margin-top: 20px;
+  background: #0f0f0f; color: #fff;
+  border: none; border-radius: 4px;
+  font-size: .9rem; font-weight: 700; cursor: pointer;
+  transition: background 180ms ease;
+}
+.auth-submit:hover { background: #e84000; }
+
+/* Switch link */
+.auth-switch {
+  text-align: center; margin-top: 20px;
+  font-size: .85rem; color: #717171;
+}
+.auth-switch a { color: #0f0f0f; font-weight: 600; text-decoration: none; }
+.auth-switch a:hover { color: #e84000; }
+
+/* Non-field errors */
+.auth-global-error {
+  background: #fff4f0; border: 1px solid #ffd5c8;
+  border-radius: 4px; padding: 10px 14px;
+  font-size: .85rem; color: #c73600; margin-bottom: 16px;
+}
+
+/* ════════════════════════════════════════════════════════
+   MOBILE RESPONSIVE — Auth pages
+════════════════════════════════════════════════════════ */
+@media (max-width: 480px) {
+  .auth-wrap { padding: 16px; }
+  .auth-card { padding: 28px 20px; }
+  .auth-title { font-size: 1.05rem; }
+}
