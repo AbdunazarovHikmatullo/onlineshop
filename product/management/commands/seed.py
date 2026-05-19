@@ -181,6 +181,7 @@ class Command(BaseCommand):
         images = self._collect_images()
         self.stdout.write(f'Найдено изображений: {len(images)}')
 
+        self._seed_admin()
         categories = self._seed_categories()
         products   = self._seed_products(categories, images)
         users      = self._seed_users()
@@ -311,6 +312,17 @@ class Command(BaseCommand):
             f'{brand} {name} изготовлена из высококачественных материалов. Прошла контроль качества на заводе-изготовителе.',
         ]
         return random.choice(templates)
+
+    # ── Admin ──────────────────────────────────────────────
+    def _seed_admin(self):
+        username = 'Hikmatullo'
+        email    = 'abdunazarovhikmatullo2@gmail.com'
+        password = '2008_8002'
+        if User.objects.filter(username=username).exists():
+            self.stdout.write(f'  Администратор «{username}» уже существует — пропускаю.')
+            return
+        User.objects.create_superuser(username=username, email=email, password=password)
+        self.stdout.write(self.style.SUCCESS(f'  Администратор «{username}» создан (пароль: {password})'))
 
     # ── Users ──────────────────────────────────────────────
     def _seed_users(self):
