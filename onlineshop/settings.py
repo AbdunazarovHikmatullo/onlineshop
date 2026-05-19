@@ -1,10 +1,12 @@
 from pathlib import Path
+import os
+from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+load_dotenv(BASE_DIR / '.env')
 
-SECRET_KEY = 'django-insecure-eugqtui23h+0j8d37qxnn2f25p9&+0!z-02wbnl6=w5%es!12^'
-
-DEBUG = True
+SECRET_KEY = os.getenv('SECRET_KEY', 'fallback-insecure-key')
+DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
 ALLOWED_HOSTS = ['*']
 
@@ -59,7 +61,6 @@ TEMPLATES = [
 WSGI_APPLICATION = 'onlineshop.wsgi.application'
 
 
-# --- Database ---
 if DEBUG:
     DATABASES = {
         'default': {
@@ -88,24 +89,20 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
-# --- Internationalization ---
 LANGUAGE_CODE = 'ru-ru'
 TIME_ZONE = 'Europe/Moscow'
 USE_I18N = True
 USE_TZ = True
 
 
-# --- Static files ---
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-# --- Media files ---
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 
-# --- Auth ---
 AUTH_USER_MODEL     = 'account.User'
 LOGIN_URL           = '/account/login/'
 LOGIN_REDIRECT_URL  = '/'
@@ -119,10 +116,9 @@ CSRF_TRUSTED_ORIGINS = [
     'https://*.trycloudflare.com',
     'http://127.0.0.1:8000',
     'http://localhost:8000',
-    'https://a5b0-85-9-149-51.ngrok-free.app',
+    'https://3592-85-9-149-51.ngrok-free.app',
 ]
 
-# --- Email (SMTP Gmail) ---
 EMAIL_BACKEND       = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST          = 'smtp.gmail.com'
 EMAIL_PORT          = 587
